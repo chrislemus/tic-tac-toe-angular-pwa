@@ -1,17 +1,33 @@
 <nb-layout>
-
   <nb-layout-header fixed>
-  <!-- Insert header here -->
+    <!-- Insert header here -->
   </nb-layout-header>
 
   <nb-layout-column>
-    <app-board></app-board>
-    <router-outlet></router-outlet>
-    
+    <router-outlet/>
+    <br/>
+
   </nb-layout-column>
-
   <nb-layout-footer fixed>
-  <!-- Insert footer here -->
+    <nav>
+      <ul>
+        <li>
+          <a
+            routerLink="/"
+            routerLinkActive="active"
+            ariaCurrentWhenActive="page"
+            >Home</a
+          >
+        </li>
+        <li>
+          <a
+            routerLink="/info"
+            routerLinkActive="active"
+            ariaCurrentWhenActive="page"
+            >Info</a
+          >
+        </li>
+      </ul>
+    </nav>
   </nb-layout-footer>
-
 </nb-layout>

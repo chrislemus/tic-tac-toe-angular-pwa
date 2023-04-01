@@ -9,9 +9,10 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NbThemeModule, NbLayoutModule, NbButtonModule } from '@nebular/theme';
 import { NbEvaIconsModule } from '@nebular/eva-icons';
 import { ServiceWorkerModule } from '@angular/service-worker';
+import { InfoComponent } from './info/info.component';
 
 @NgModule({
-  declarations: [AppComponent, SquareComponent, BoardComponent],
+  declarations: [AppComponent, SquareComponent, BoardComponent, InfoComponent],
   imports: [
     BrowserModule,
     AppRoutingModule,
