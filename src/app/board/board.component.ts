@@ -1,63 +1,91 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import {
+  BehaviorSubject,
+  concatMap,
+  filter,
+  map,
+  Observable,
+  Subject,
+  Subscription,
+  takeWhile,
+  tap,
+} from 'rxjs';
 
 type Player = 'X' | 'O';
+const lines: number[][] = [
+  [0, 1, 2],
+  [3, 4, 5],
+  [6, 7, 8],
+  [0, 3, 6],
+  [1, 4, 7],
+  [2, 5, 8],
+  [0, 4, 8],
+  [2, 4, 6],
+];
 
 @Component({
   selector: 'app-board',
   templateUrl: './board.component.html',
   styleUrls: ['./board.component.scss'],
 })
-export class BoardComponent implements OnInit {
-  squares: Player[] = [];
+export class BoardComponent implements OnInit, OnDestroy {
+  squares = new BehaviorSubject<(Player | null)[]>([]);
+  moves: Subject<number> = new Subject<number>();
   xIsNext: boolean = true;
-  winner: Player | null = null;
+  winner: Observable<Player | null>;
+  _subs: Subscription[] = [];
+
+  constructor() {
+    this.winner = this.squares.pipe(
+      map((squares) => {
+        for (const line of lines) {
+          const player = squares[line[0]];
+          if (player) {
+            const playerWon = line.every((idx) => squares[idx] === player);
+            if (playerWon) return player;
+          }
+        }
+        return null;
+      })
+    );
+  }
+
+  get player(): Player {
+    return this.xIsNext ? 'X' : 'O';
+  }
 
   ngOnInit(): void {
     this.newGame();
   }
 
+  ngOnDestroy(): void {
+    this._subs.forEach((sub) => sub.unsubscribe());
+  }
+
   newGame(): void {
-    this.squares = Array(9).fill(null);
-    this.winner = null;
+    this.squares.next(Array(9).fill(null));
+    this._subs.push(this.onMakeMove().subscribe());
     this.xIsNext = true;
   }
 
-  get player(): 'X' | 'O' {
-    return this.xIsNext ? 'X' : 'O';
-  }
-
   makeMove(idx: number): void {
-    if (!this.squares[idx] && !this.winner) {
-      this.squares.splice(idx, 1, this.player);
-      this.xIsNext = !this.xIsNext;
-    }
-
-    this.winner = this.calculateWinner();
+    this.moves.next(idx);
   }
 
-  calculateWinner(): Player | null {
-    const lines: number[][] = [
-      [0, 1, 2],
-      [3, 4, 5],
-      [6, 7, 8],
-      [0, 3, 6],
-      [1, 4, 7],
-      [2, 5, 8],
-      [0, 4, 8],
-      [2, 4, 6],
-    ];
-
-    for (const line of lines) {
-      const [a, b, c] = line;
-      if (
-        this.squares[a] &&
-        this.squares[a] === this.squares[b] &&
-        this.squares[a] === this.squares[c]
-      ) {
-        return this.squares[a];
-      }
-    }
-
-    return null;
+  onMakeMove() {
+    return this.moves.pipe(
+      filter((idx) => !this.squares.getValue()[idx]),
+      map((idx) => {
+        const squares = this.squares.getValue();
+        squares.splice(idx, 1, this.player);
+        return squares;
+      }),
+      tap((newSquares) => {
+        this.squares.next(newSquares);
+        this.xIsNext = !this.xIsNext;
+      }),
+      concatMap(() => this.winner),
+      takeWhile((winner) => winner === null)
+    );
   }
 }

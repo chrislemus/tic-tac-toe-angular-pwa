@@ -16,5 +16,5 @@ import { Component, Input } from '@angular/core';
   styles: ['button {height: 100%; width: 100%; }'],
 })
 export class SquareComponent {
-  @Input() value: 'X' | 'O' = 'O';
+  @Input() value: 'X' | 'O' | null = 'O';
 }
