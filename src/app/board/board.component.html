@@ -1,8 +1,8 @@
-<h1>Current Player: {{ player }}</h1>
-
-<button nbButton outline status="danger" (click)="newGame()">
+<button nbButton outline status="danger" (click)="newGame()" id="new-game-btn">
   Start new Game
 </button>
+
+<h1>Current Player: {{ player }}</h1>
 
 <h2 *ngIf="winner | async">Player {{ winner | async }} won the game!</h2>
 
